@@ -1,0 +1,142 @@
+[
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "overall",
+    "metric": "accuracy",
+    "value": 91.9
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "macro",
+    "metric": "precision",
+    "value": 83.22
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "macro",
+    "metric": "sensitivity",
+    "value": 79.67
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "macro",
+    "metric": "specificity",
+    "value": 79.67
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "macro",
+    "metric": "f1_score",
+    "value": 81.3
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "macro",
+    "metric": "auc",
+    "value": 0.88
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "micro",
+    "metric": "precision",
+    "value": 91.9
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "micro",
+    "metric": "sensitivity",
+    "value": 91.9
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "micro",
+    "metric": "specificity",
+    "value": 91.9
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "micro",
+    "metric": "f1_score",
+    "value": 91.9
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_abnormal",
+    "metric": "precision",
+    "value": 71.93
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_abnormal",
+    "metric": "sensitivity",
+    "value": 63.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_abnormal",
+    "metric": "specificity",
+    "value": 96.27
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_abnormal",
+    "metric": "f1_score",
+    "value": 67.21
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_abnormal",
+    "metric": "auc",
+    "value": 0.88
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_normal",
+    "metric": "precision",
+    "value": 94.51
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_normal",
+    "metric": "sensitivity",
+    "value": 96.27
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_normal",
+    "metric": "specificity",
+    "value": 63.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_normal",
+    "metric": "f1_score",
+    "value": 95.38
+  },
+  {
+    "model": "yolov11m",
+    "task": "binary",
+    "group": "class_normal",
+    "metric": "auc",
+    "value": 0.88
+  }
+]

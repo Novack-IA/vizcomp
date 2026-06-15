@@ -1,0 +1,212 @@
+[
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "overall",
+    "metric": "accuracy",
+    "value": 90.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "precision",
+    "value": 77.86
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "sensitivity",
+    "value": 52.94
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "specificity",
+    "value": 87.11
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "f1_score",
+    "value": 58.8
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "auc",
+    "value": 0.92
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "micro",
+    "metric": "precision",
+    "value": 90.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "micro",
+    "metric": "sensitivity",
+    "value": 90.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "micro",
+    "metric": "specificity",
+    "value": 90.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "micro",
+    "metric": "f1_score",
+    "value": 90.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "precision",
+    "value": 93.1
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "sensitivity",
+    "value": 97.44
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "specificity",
+    "value": 52.31
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "f1_score",
+    "value": 95.22
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "auc",
+    "value": 0.89
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "precision",
+    "value": 58.33
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "sensitivity",
+    "value": 56.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "specificity",
+    "value": 97.87
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "f1_score",
+    "value": 57.14
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "auc",
+    "value": 0.95
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "precision",
+    "value": 100.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "sensitivity",
+    "value": 25.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "specificity",
+    "value": 100.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "f1_score",
+    "value": 40.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "auc",
+    "value": 0.99
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "precision",
+    "value": 60.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "sensitivity",
+    "value": 33.33
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "specificity",
+    "value": 98.25
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "f1_score",
+    "value": 42.86
+  },
+  {
+    "model": "yolov11m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "auc",
+    "value": 0.83
+  }
+]

@@ -1,0 +1,212 @@
+[
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "overall",
+    "metric": "accuracy",
+    "value": 91.3
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "precision",
+    "value": 81.41
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "sensitivity",
+    "value": 57.06
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "specificity",
+    "value": 89.42
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "f1_score",
+    "value": 61.36
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "macro",
+    "metric": "auc",
+    "value": 0.92
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "micro",
+    "metric": "precision",
+    "value": 91.3
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "micro",
+    "metric": "sensitivity",
+    "value": 91.3
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "micro",
+    "metric": "specificity",
+    "value": 91.3
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "micro",
+    "metric": "f1_score",
+    "value": 91.3
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "precision",
+    "value": 94.38
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "sensitivity",
+    "value": 97.9
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "specificity",
+    "value": 61.54
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "f1_score",
+    "value": 96.11
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_normal",
+    "metric": "auc",
+    "value": 0.9
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "precision",
+    "value": 56.25
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "sensitivity",
+    "value": 72.0
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "specificity",
+    "value": 97.01
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "f1_score",
+    "value": 63.16
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_opmd",
+    "metric": "auc",
+    "value": 0.97
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "precision",
+    "value": 100.0
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "sensitivity",
+    "value": 25.0
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "specificity",
+    "value": 100.0
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "f1_score",
+    "value": 40.0
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_oral_cancer",
+    "metric": "auc",
+    "value": 1.0
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "precision",
+    "value": 75.0
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "sensitivity",
+    "value": 33.33
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "specificity",
+    "value": 99.13
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "f1_score",
+    "value": 46.15
+  },
+  {
+    "model": "yolov8m",
+    "task": "one_stage",
+    "group": "class_variation",
+    "metric": "auc",
+    "value": 0.82
+  }
+]

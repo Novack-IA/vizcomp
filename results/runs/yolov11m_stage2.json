@@ -1,0 +1,177 @@
+[
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "overall",
+    "metric": "accuracy",
+    "value": 83.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "macro",
+    "metric": "precision",
+    "value": 87.83
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "macro",
+    "metric": "sensitivity",
+    "value": 80.78
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "macro",
+    "metric": "specificity",
+    "value": 89.25
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "macro",
+    "metric": "f1_score",
+    "value": 83.66
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "macro",
+    "metric": "auc",
+    "value": 0.92
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "micro",
+    "metric": "precision",
+    "value": 83.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "micro",
+    "metric": "sensitivity",
+    "value": 83.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "micro",
+    "metric": "specificity",
+    "value": 83.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "micro",
+    "metric": "f1_score",
+    "value": 83.08
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_opmd",
+    "metric": "precision",
+    "value": 77.78
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_opmd",
+    "metric": "sensitivity",
+    "value": 84.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_opmd",
+    "metric": "specificity",
+    "value": 85.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_opmd",
+    "metric": "f1_score",
+    "value": 80.77
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_opmd",
+    "metric": "auc",
+    "value": 0.89
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_oral_cancer",
+    "metric": "precision",
+    "value": 100.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_oral_cancer",
+    "metric": "sensitivity",
+    "value": 75.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_oral_cancer",
+    "metric": "specificity",
+    "value": 100.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_oral_cancer",
+    "metric": "f1_score",
+    "value": 85.71
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_oral_cancer",
+    "metric": "auc",
+    "value": 1.0
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_variation",
+    "metric": "precision",
+    "value": 85.71
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_variation",
+    "metric": "sensitivity",
+    "value": 83.33
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_variation",
+    "metric": "specificity",
+    "value": 82.76
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_variation",
+    "metric": "f1_score",
+    "value": 84.51
+  },
+  {
+    "model": "yolov11m",
+    "task": "stage2",
+    "group": "class_variation",
+    "metric": "auc",
+    "value": 0.89
+  }
+]
