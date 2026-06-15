@@ -1,0 +1,609 @@
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+\usepackage{graphicx,url}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+\usepackage{booktabs}   % tabelas limpas (\toprule, \midrule, \bottomrule)
+\usepackage{multirow}   % celulas mescladas em tabelas
+\usepackage{float}      % posicionamento de figuras/tabelas
+\usepackage{placeins}   % \FloatBarrier para conter floats por secao
+\usepackage{hyperref}   % links clicaveis
+
+\sloppy
+
+\title{Classificação Multiclasse de Lesões da Mucosa Oral com Aprendizado Profundo em Imagens de Smartphone}
+
+\author{
+  Gustavo Novack Viana Lima,
+  Henrick de Souza Silva,\\
+  André Moura Koraleski,
+  Caio Lucca dos Santos Oliveira
+}
+
+\address{
+  Instituto de Informática -- Universidade Federal de Goiás (UFG)\\
+  Goiânia -- GO -- Brasil
+  \email{\{novack, henrick.henrick, andre.andre2, caiolucca\}@discente.ufg.br}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  Oral cancer diagnosis remains late-stage in most cases, limiting
+  five-year survival to below 50\%.
+  This work benchmarks three YOLO classification architectures
+  (YOLOv8m-cls, YOLOv11m-cls, YOLO26m-cls) on the SMART-OM dataset —
+  2,469 annotated intraoral smartphone images across four diagnostic
+  classes — against published deep learning baselines.
+  Inverse-frequency loss weighting and oversampling address severe class
+  imbalance (86.9\% Normal).
+  YOLO26m-cls surpasses the best baseline in macro sensitivity on the
+  four-class task (69.57\% vs.\ 61.57\%, ResNet50) and on binary
+  anomaly detection (66.15\% vs.\ 65.62\%, ResNet18).
+\end{abstract}
+
+\begin{resumo}
+  O diagnóstico do câncer oral ocorre predominantemente em estágio
+  avançado, com sobrevida em cinco anos inferior a 50\%.
+  Este trabalho avalia três arquiteturas YOLO de classificação
+  (YOLOv8m-cls, YOLOv11m-cls, YOLO26m-cls) no dataset SMART-OM —
+  2.469 imagens intraorais de smartphone em quatro classes diagnósticas
+  — frente aos baselines publicados, com ponderação da loss por
+  frequência inversa e \textit{oversampling} para tratar o severo
+  desbalanceamento (86,9\% Normal).
+  O YOLO26m-cls supera o melhor baseline em sensibilidade macro na
+  tarefa multiclasse (69,57\% vs.\ 61,57\%, ResNet50) e na detecção
+  binária de anomalias (66,15\% vs.\ 65,62\%, ResNet18).
+\end{resumo}
+
+% =====================================================================
+\section{Introdução}
+\label{sec:introducao}
+
+O câncer oral (CO) representa um grave problema de saúde pública global.
+Segundo dados do GLOBOCAN 2020, cânceres de lábio e cavidade oral foram
+responsáveis por 177.757 mortes e 377.713 novos casos em todo o mundo,
+figurando como o 16° câncer mais incidente globalmente~\cite{globocan2020}.
+A sobrevida em cinco anos permanece inferior a 50\%, pois a maioria dos
+diagnósticos ocorre em estágios avançados da doença.
+Condições precursoras — Desordens Potencialmente Malignas Orais (OPMD,
+do inglês \textit{Oral Potentially Malignant Disorders}) — representam
+uma janela terapêutica crítica: a detecção precoce e a diferenciação de
+tecido saudável possibilita intervenção antes da progressão maligna.
+
+O diagnóstico convencional baseia-se na inspeção visual por especialistas
+em patologia oral, processo inerentemente subjetivo e suscetível a
+variabilidade intra e interobservador.
+Em países de baixa e média renda, a concentração de especialistas nos
+grandes centros urbanos limita o acesso à triagem, resultando em
+diagnósticos tardios~\cite{globocan2020}.
+A maior parte dos \textit{frameworks} de visão computacional para lesões
+orais foi desenvolvida sobre imagens histopatológicas — que exigem biópsia
+e microscopia, incompatíveis com a atenção primária.
+Imagens capturadas por smartphones surgem como alternativa escalável e de
+baixo custo, mas a limitada disponibilidade de bases de dados públicas
+nessa modalidade restringiu o avanço da área.
+
+Nesse contexto, Kumar et al.~\cite{smartom} introduziram o SMART-OM
+(\textit{SMARTphone-based dataset of Oral Mucosa images}), o único dataset
+público de imagens intraorais identificado entre 332 disponíveis na área:
+2.469 fotografias de 331 pacientes em quatro classes diagnósticas (Normal,
+Variação do Normal, OPMD e Câncer Oral), coletadas com smartphones Android
+e iOS em condições clínicas reais.
+Os autores estabeleceram um benchmark avaliando seis arquiteturas —
+ResNet18, ResNet34, ResNet50, VGG16, EfficientNet-b0 e Vision Transformer
+(ViT)~\cite{resnet,efficientnet,vit} — em detecção binária de anomalias e
+classificação multiclasse, atingindo 65,62\% de sensibilidade para a classe
+Anormal (tarefa binária) e 61,57\% de sensibilidade macro (multiclasse).
+
+O presente trabalho propõe e avalia três arquiteturas YOLO no modo de
+classificação sobre o SMART-OM — YOLOv8m-cls, YOLOv11m-cls e
+YOLO26m-cls~\cite{yolov8,yolo11,yolo26} — como alternativa às CNNs
+clássicas e ao ViT do benchmark original.
+Como segunda contribuição, propomos um pipeline em dois estágios:
+detector binário de anomalias (Estágio~1) seguido de classificador de
+três classes (Estágio~2), com ponderação da função de perda por frequência
+inversa para mitigar o severo desbalanceamento do dataset.
+
+\section{Formulação do Problema}
+\label{sec:formulacao}
+
+\subsection{Definição da Tarefa}
+
+Dado um conjunto de imagens intraorais, o objetivo é aprender uma função
+$f_\theta$ que mapeie cada fotografia da mucosa oral a uma categoria
+diagnóstica. Avaliamos duas formulações complementares desta tarefa:
+
+\textbf{T\textsubscript{1} — Detecção binária de anomalias.}
+Classificação em duas classes — \textit{Normal} e \textit{Anormal} —
+onde a segunda agrupa todas as imagens com alterações da mucosa
+(Variação do Normal, OPMD e Câncer Oral).
+O objetivo primário é maximizar a sensibilidade para a classe Anormal,
+minimizando falsos negativos: clinicamente, deixar escapar uma lesão
+tem consequências mais graves do que um falso alarme.
+
+\textbf{T\textsubscript{2} — Classificação multiclasse.}
+Classificação em quatro classes: \textit{Normal}, \textit{Variação do
+Normal}, \textit{OPMD} e \textit{Câncer Oral}, replicando diretamente
+a tarefa do benchmark SMART-OM~\cite{smartom}.
+Esta formulação fornece maior granularidade diagnóstica, permitindo
+distinguir lesões potencialmente malignas (OPMD) de câncer já
+estabelecido, orientando decisões terapêuticas distintas.
+
+\subsection{Dataset}
+
+Utilizamos o dataset SMART-OM~\cite{smartom}, composto por 2.469 imagens
+intraorais coletadas de 331 pacientes em condições clínicas reais, com
+smartphones Android e iOS, cobrindo oito regiões anatômicas da cavidade oral.
+A Tabela~\ref{tab:dataset} apresenta a distribuição de imagens por classe
+e a partição treino/teste adotada (80\%/20\%, sem estratificação por
+paciente).
+
+\begin{table}[ht]
+  \centering
+  \caption{Distribuição do dataset SMART-OM por classe.}
+  \label{tab:dataset}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Classe & Total & Treino$^\dagger$ & Teste & \% do total \\
+    \midrule
+    Normal             & 2.145 & 1.716 & 429 & 86,9\% \\
+    Variação do Normal &   179 &   143 &  36 &  7,2\% \\
+    OPMD               &   125 &   100 &  25 &  5,1\% \\
+    Câncer Oral        &    20 &    16 &   4 &  0,8\% \\
+    \midrule
+    \textbf{Total}     & \textbf{2.469} & \textbf{1.975} & \textbf{494} & 100\% \\
+    \bottomrule
+    \multicolumn{5}{l}{\footnotesize{$^\dagger$Antes de \textit{oversampling};
+    classes minoritárias são superamostradas no treinamento (Seção~\ref{sec:metodologia}).}}
+  \end{tabular}
+\end{table}
+
+O dataset é severamente desbalanceado: Normal representa 86,9\% das
+imagens e Câncer Oral apenas 0,8\% (20 amostras), tornando a acurácia
+global inadequada como critério principal de avaliação.
+
+
+\subsection{Métricas de Avaliação}
+
+Em conformidade com o benchmark SMART-OM~\cite{smartom}, reportamos para
+cada tarefa e modelo as seguintes métricas sobre o conjunto de teste:
+
+\begin{itemize}
+  \item \textbf{Sensibilidade macro} (\textit{macro recall}): média não
+    ponderada da sensibilidade por classe — métrica primária, pois penaliza
+    igualmente erros em classes raras e frequentes;
+  \item \textbf{F1-score macro}: média harmônica de precisão e sensibilidade,
+    calculada por classe e depois agregada por média simples;
+  \item \textbf{Acurácia global, Precisão e Especificidade} — macro e
+    por classe;
+  \item \textbf{AUC-ROC} macro e por classe, calculada via
+    \textit{One-vs-Rest}.
+\end{itemize}
+
+A sensibilidade macro é adotada como critério de comparação principal
+com o baseline, dado o desbalanceamento do dataset e a assimetria
+clínica dos erros.
+
+\section{Metodologia}
+\label{sec:metodologia}
+
+\subsection{Preparação do Dataset}
+
+O dataset SMART-OM foi dividido aleatoriamente em 80\% para treinamento
+e 20\% para teste, sem estratificação por paciente ou por região
+intraoral, replicando o protocolo do benchmark de referência~\cite{smartom}.
+Não foi utilizado conjunto de validação separado, dado o reduzido número
+de amostras nas classes minoritárias — reservar uma terceira partição
+reduziria ainda mais os dados disponíveis para treinamento das classes
+OPMD (125 imagens) e Câncer Oral (20 imagens). E separar os dados do conjunto de treino tornaria as comparações inválidas para o protocolo de referência
+
+Para mitigar o desbalanceamento severo (86,9\% Normal), aplicamos
+\textit{oversampling} por duplicação aleatória nas classes minoritárias
+do conjunto de treinamento, igualando a contagem de cada classe à maior
+entre elas.
+No conjunto de teste, nenhuma modificação é aplicada — as distribuições
+originais são preservadas para avaliação.
+
+\subsection{Arquiteturas Avaliadas}
+
+Avaliamos a variante \textit{medium} de três famílias YOLO no modo de
+classificação, todas inicializadas com pesos pré-treinados no
+ImageNet e submetidas a \textit{fine-tuning} no SMART-OM:
+
+\begin{itemize}
+  \item \textbf{YOLOv8m-cls}~\cite{yolov8}: backbone CSPDarknet com
+    módulos C2f;
+  \item \textbf{YOLOv11m-cls}~\cite{yolo11}: evolução do YOLOv8 com
+    módulos C3k2 e atenção espacial CBAM;
+  \item \textbf{YOLO26m-cls}~\cite{yolo26}: arquitetura sem NMS,
+    com \textit{ProgLoss} e otimizador MuSGD para convergência estável.
+\end{itemize}
+
+Todo o treinamento foi realizado via framework Ultralytics com
+PyTorch~\cite{yolov8}, em GPU NVIDIA RTX 4060 Laptop (8 GB VRAM).
+
+\subsection{Configuração de Treinamento}
+
+A Tabela~\ref{tab:hiperparametros} resume os hiperparâmetros utilizados,
+aplicados igualmente aos três modelos e às três tarefas de treinamento.
+
+\begin{table}[ht]
+  \centering
+  \caption{Hiperparâmetros de treinamento.}
+  \label{tab:hiperparametros}
+  \begin{tabular}{ll}
+    \toprule
+    Parâmetro & Valor \\
+    \midrule
+    Épocas              & 100 \\
+    Tamanho de batch    & 32 \\
+    Tamanho de imagem   & 320 px \\
+    Otimizador          & AdamW ($lr_0 = 10^{-3}$, $lr_f = 0{,}01$) \\
+    \textit{Flip} horizontal & 0,5 \\
+    Rotação             & $\pm$10° \\
+    Translação          & 10\% \\
+    Escala              & 30\% \\
+    Jitter de matiz     & 0,005 \\
+    Jitter de saturação & 0,7 \\
+    Jitter de valor     & 0,4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Tratamento do Desbalanceamento via Loss Ponderada}
+
+Além do \textit{oversampling}, aplicamos ponderação de classes na função
+de perda durante o treinamento. Os pesos são calculados pelo método de
+frequência inversa normalizada:
+
+\begin{equation}
+  w_c = \frac{N}{C \cdot n_c}, \qquad
+  w_c \leftarrow \frac{w_c}{\bar{w}}
+  \label{eq:pesos}
+\end{equation}
+
+onde $N$ é o total de amostras de treinamento, $C$ é o número de
+classes e $n_c$ é o número de amostras da classe $c$.
+A normalização pela média $\bar{w}$ mantém a escala da loss equivalente
+ao caso sem ponderação, preservando o \textit{learning rate} calibrado.
+
+\subsection{Pipeline de Dois Estágios}
+
+Como contribuição adicional, propomos um pipeline de classificação em
+dois estágios sequenciais:
+
+\textbf{Estágio 1 — Detector binário.}
+Um classificador treinado na tarefa T\textsubscript{1} (Normal
+vs.\ Anormal) recebe a imagem e decide se há alguma alteração da
+mucosa. Caso a imagem seja classificada como Normal, o pipeline
+encerra. Caso contrário, ela é encaminhada ao Estágio 2.
+
+\textbf{Estágio 2 — Classificador de lesões.}
+Um segundo classificador, treinado exclusivamente sobre as 760 imagens
+anômalas (Variação do Normal, OPMD e Câncer Oral) após
+\textit{oversampling}, distingue entre as três categorias patológicas.
+
+A avaliação do pipeline é feita de forma \textit{end-to-end}: imagens
+incorretamente classificadas como Normal pelo Estágio 1 nunca chegam ao
+Estágio 2, sendo contabilizadas como erro na métrica final de quatro
+classes. 
+\section{Resultados e Discussão}
+\label{sec:resultados}
+
+\subsection{\texorpdfstring{Detecção Binária de Anomalias (T\textsubscript{1})}{Detecção Binária (T1)}}
+
+A Tabela~\ref{tab:binary} apresenta os resultados completos na tarefa
+binária, comparando o melhor modelo do benchmark SMART-OM
+(ResNet18~\cite{smartom}) com os três modelos propostos.
+Em negrito, o melhor valor por linha entre todos os modelos.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Desempenho na classificação binária
+           (T\textsubscript{1}). Em negrito: melhor valor por linha.
+           Baseline: ResNet18~\cite{smartom}.}
+  \label{tab:binary}
+  \small
+  \begin{tabular}{llrrrr}
+    \toprule
+    \multicolumn{2}{l}{Métricas de Desempenho}
+      & ResNet18 & YOLOv8m & YOLOv11m & YOLO26m \\
+    \midrule
+    \multicolumn{2}{l}{Acurácia (\%)}
+      & 90,89 & 92,11 & 91,90 & \textbf{93,32} \\
+    \midrule
+    \multirow{5}{*}{Média Macro}
+      & Precisão (\%)       & 79,74 & 84,20 & 83,22 & \textbf{87,31} \\
+      & Sensibilidade (\%)  & 80,14 & 79,14 & 79,67 & \textbf{81,79} \\
+      & Especificidade (\%) & 80,14 & 79,14 & 79,67 & \textbf{81,79} \\
+      & F1-Score (\%)       & 79,94 & 81,37 & 81,30 & \textbf{84,24} \\
+      & AUC                 & \textbf{0,91} & \textbf{0,91} & 0,88 & 0,87 \\
+    \midrule
+    \multirow{4}{*}{\parbox{1.6cm}{Métricas\\(Normal)}}
+      & Precisão (\%)       & 94,87 & 94,32 & 94,51 & \textbf{95,00} \\
+      & Sensibilidade (\%)  & 94,65 & 96,74 & 96,27 & \textbf{97,44} \\
+      & Especificidade (\%) & 65,62 & 61,54 & 63,08 & \textbf{66,15} \\
+      & F1-Score (\%)       & 94,76 & 95,51 & 95,38 & \textbf{96,20} \\
+    \midrule
+    \multirow{4}{*}{\parbox{1.6cm}{Métricas\\(Anormal)}}
+      & Precisão (\%)       & 64,61 & 74,07 & 71,93 & \textbf{79,63} \\
+      & Sensibilidade (\%)  & 65,62 & 61,54 & 63,08 & \textbf{66,15} \\
+      & Especificidade (\%) & 94,65 & 96,74 & 96,27 & \textbf{97,44} \\
+      & F1-Score (\%)       & 65,12 & 67,23 & 67,21 & \textbf{72,27} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+O YOLO26m-cls superou o ResNet18 em quase todas as métricas, com
+destaque para precisão macro (+7,57 p.p.), F1-macro (+4,30 p.p.) e
+sensibilidade da classe Anormal (66,15\% vs.\ 65,62\%).
+O único indicador em que o baseline se mantém superior é a AUC (0,91
+vs.\ 0,87), sugerindo que a discriminação global de ranking é
+ligeiramente melhor no ResNet18, enquanto o YOLO26m-cls toma decisões
+binárias mais precisas.
+A Figura~\ref{fig:conf_binary} exibe a matriz de confusão do YOLO26m-cls:
+97,44\% das imagens Normais são classificadas corretamente, com 33,85\%
+de falsos negativos na classe Anormal.
+A Figura~\ref{fig:sens_bars} compara a sensibilidade macro de todos os
+modelos nas duas tarefas.
+
+YOLOv8m-cls e YOLOv11m-cls mantiveram-se próximos ao ResNet18 em
+sensibilidade macro (79,14\% e 79,67\%, respectivamente, contra 80,14\%
+do baseline), com ganho de F1-macro em ambos os casos (+1,43 e
++1,36~p.p.).
+O ganho de sensibilidade na classe Anormal obtido pelo YOLO26m-cls —
+ainda que de apenas 0,53~p.p.\ em termos absolutos — tem relevância
+clínica direta: em contexto de triagem, cada caso Anormal classificado
+erroneamente como Normal representa um paciente que não é encaminhado
+para avaliação especializada, podendo ter sua janela de intervenção
+precoce comprometida.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.52\textwidth]{fig_confusion_binary.pdf}
+  \caption{Matriz de confusão do YOLO26m-cls na tarefa binária
+           (T\textsubscript{1}).}
+  \label{fig:conf_binary}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig_sensitivity.pdf}
+  \caption{Sensibilidade macro dos modelos propostos vs.\ baseline do
+           SMART-OM nas tarefas binária (a) e multiclasse (b).
+           A linha tracejada indica o melhor resultado do benchmark.}
+  \label{fig:sens_bars}
+\end{figure}
+
+\FloatBarrier
+\subsection{\texorpdfstring{Classificação Multiclasse (T\textsubscript{2})}{Classificação Multiclasse (T2)}}
+
+A Tabela~\ref{tab:multiclass} detalha os resultados completos por classe
+na tarefa de quatro categorias, tendo como baseline o ResNet50~\cite{smartom}
+— o melhor modelo reportado pelo benchmark original nessa tarefa.
+A classificação multiclasse é substancialmente mais desafiadora que a
+tarefa binária: além do desbalanceamento geral, as classes OPMD (5,1\%)
+e Câncer Oral (0,8\%) apresentam características visuais sutis e contagens
+de teste reduzidas, tornando a sensibilidade macro o critério mais
+informativo para comparação entre modelos.
+
+\begin{table}[tp]
+  \centering
+  \caption{Desempenho na classificação multiclasse
+           (T\textsubscript{2}). Em negrito: melhor valor por linha.
+           Baseline: ResNet50~\cite{smartom}.}
+  \label{tab:multiclass}
+  \small
+  \begin{tabular}{llrrrr}
+    \toprule
+    \multicolumn{2}{l}{Métricas de Desempenho}
+      & ResNet50 & YOLOv8m & YOLOv11m & YOLO26m \\
+    \midrule
+    \multicolumn{2}{l}{Acurácia (\%)}
+      & 89,07 & \textbf{91,30} & 90,08 & 90,69 \\
+    \midrule
+    \multirow{5}{*}{Média Macro}
+      & Precisão (\%)       & 74,62 & \textbf{81,41} & 77,86 & 77,13 \\
+      & Sensibilidade (\%)  & 61,57 & 57,06 & 52,94 & \textbf{69,57} \\
+      & Especificidade (\%) & 84,63 & 89,42 & 87,11 & \textbf{89,92} \\
+      & F1-Score (\%)       & 65,99 & 61,36 & 58,80 & \textbf{71,46} \\
+      & AUC                 & 0,91  & 0,92  & 0,92  & \textbf{0,93}  \\
+    \midrule
+    \multirow{4}{*}{\parbox{1.6cm}{Métricas\\(Normal)}}
+      & Precisão (\%)       & 91,83 & 94,38 & 93,10 & \textbf{94,75} \\
+      & Sensibilidade (\%)  & 96,74 & \textbf{97,90} & 97,44 & 96,74 \\
+      & Especificidade (\%) & 42,19 & 61,54 & 52,31 & \textbf{64,62} \\
+      & F1-Score (\%)       & 94,22 & \textbf{96,11} & 95,22 & 95,73 \\
+    \midrule
+    \multirow{4}{*}{\parbox{1.6cm}{Métricas\\(Variação)}}
+      & Precisão (\%)       & 40,00 & \textbf{75,00} & 60,00 & 57,89 \\
+      & Sensibilidade (\%)  & 16,22 & \textbf{33,33} & \textbf{33,33} & 30,56 \\
+      & Especificidade (\%) & 98,03 & \textbf{99,13} & 98,25 & 98,25 \\
+      & F1-Score (\%)       & 23,08 & \textbf{46,15} & 42,86 & 40,00 \\
+    \midrule
+    \multirow{4}{*}{\parbox{1.6cm}{Métricas\\(OPMD)}}
+      & Precisão (\%)       & \textbf{66,67} & 56,25 & 58,33 & 55,88 \\
+      & Sensibilidade (\%)  & 66,67 & 72,00 & 56,00 & \textbf{76,00} \\
+      & Especificidade (\%) & \textbf{98,30} & 97,01 & 97,87 & 96,80 \\
+      & F1-Score (\%)       & \textbf{66,67} & 63,16 & 57,14 & 64,41 \\
+    \midrule
+    \multirow{4}{*}{\parbox{1.6cm}{Métricas\\(Câncer Oral)}}
+      & Precisão (\%)       & \textbf{100,00} & \textbf{100,00} & \textbf{100,00} & \textbf{100,00} \\
+      & Sensibilidade (\%)  & 66,67 & 25,00 & 25,00 & \textbf{75,00} \\
+      & Especificidade (\%) & \textbf{100,00} & \textbf{100,00} & \textbf{100,00} & \textbf{100,00} \\
+      & F1-Score (\%)       & 80,00 & 40,00 & 40,00 & \textbf{85,71} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+O YOLO26m-cls foi o único modelo proposto a superar o ResNet50 na
+métrica primária, com sensibilidade macro de 69,57\% contra 61,57\%
+do baseline (+8,0~p.p.), além de F1-macro superior (+5,47~p.p.) e
+maior AUC (0,93 vs.\ 0,91).
+YOLOv8m-cls e YOLOv11m-cls ficaram abaixo do ResNet50 em sensibilidade
+macro (57,06\% e 52,94\%, respectivamente), demonstrando que o ganho
+não é uniforme na família YOLO e está concentrado na arquitetura mais
+recente.
+Na classe OPMD — clinicamente crítica por representar a janela de
+intervenção pré-maligna — o YOLO26m-cls atingiu 76,00\% de
+sensibilidade contra 66,67\% do baseline.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{fig_confusion_multiclass.pdf}
+  \caption{Matriz de confusão do YOLO26m-cls na tarefa multiclasse
+           (T\textsubscript{2}).}
+  \label{fig:conf_multi}
+\end{figure}
+
+\FloatBarrier
+\subsection{\texorpdfstring{Pipeline de Dois Estágios (T\textsubscript{2})}{Pipeline de Dois Estágios (T2)}}
+
+A Tabela~\ref{tab:twostage} compara o pipeline de dois estágios com as
+abordagens \textit{one-stage} e o baseline do SMART-OM na tarefa de
+classificação multiclasse.
+O pipeline combina o melhor detector binário (YOLO26m-cls) com o melhor
+classificador de lesões (YOLOv8m-cls no estágio 2), selecionados
+individualmente por sensibilidade macro em seus respectivos conjuntos de
+validação.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Comparação entre abordagens na tarefa multiclasse (T\textsubscript{2}).
+           Em negrito: melhor valor por linha.
+           Two-Stage: YOLO26m-cls (binário) + YOLOv8m-cls (lesões).}
+  \label{tab:twostage}
+  \footnotesize
+  \begin{tabular}{llrrrrr}
+    \toprule
+    \multicolumn{2}{l}{Métricas de Desempenho}
+      & ResNet50 & YOLOv8m & YOLOv11m & YOLO26m & Two-Stage \\
+    \midrule
+    \multicolumn{2}{l}{Acurácia (\%)}
+      & 89,07 & 91,30 & 90,08 & 90,69 & \textbf{91,90} \\
+    \midrule
+    \multirow{3}{*}{Média Macro}
+      & Sensibilidade (\%)  & 61,57 & 57,06 & 52,94 & 69,57 & \textbf{71,83} \\
+      & F1-Score (\%)       & 65,99 & 61,36 & 58,80 & 71,46 & \textbf{74,94} \\
+      & AUC                 & 0,91  & 0,92  & \textbf{0,92}  & \textbf{0,93}  & 0,83  \\
+    \midrule
+    \multirow{4}{*}{\parbox{1.8cm}{Sensibilidade\\por Classe (\%)}}
+      & Normal      & 96,74 & \textbf{97,90} & 97,44 & 96,74 & \textbf{97,44} \\
+      & Variação    & 16,22 & \textbf{33,33} & \textbf{33,33} & 30,56 & 38,89 \\
+      & OPMD        & 66,67 & 72,00 & 56,00 & \textbf{76,00} & \textbf{76,00} \\
+      & Câncer Oral & 66,67 & 25,00 & 25,00 & \textbf{75,00} & \textbf{75,00} \\
+    \bottomrule
+    \multicolumn{7}{l}{\footnotesize{Baseline ResNet50 de~\cite{smartom}; modelos YOLO treinados neste trabalho.}}
+  \end{tabular}
+\end{table}
+
+O pipeline de dois estágios obteve a maior sensibilidade macro (71,83\%)
+e o maior F1-macro (74,94\%) entre todas as abordagens avaliadas,
+superando o melhor modelo \textit{one-stage} (YOLO26m, 69,57\%) em
+2,26~p.p.\ e o baseline em 10,26~p.p.
+A Variação do Normal registrou a maior sensibilidade de todos os métodos
+(38,89\%), beneficiada pela especialização do Estágio~2 em distinguir
+apenas entre categorias patológicas.
+
+A AUC do pipeline (0,83) ficou substancialmente abaixo dos modelos
+\textit{one-stage} (0,92--0,93).
+Essa queda é estrutural: a AUC avalia a qualidade do \textit{ranking}
+de probabilidades, e no pipeline de dois estágios as probabilidades dos
+dois estágios não são calibradas em escala comum.
+% Essa descontinuidade entre as duas escalas de confiança degrada a curva
+% ROC, sem que haja perda equivalente na qualidade das decisões binárias
+% tomadas em cada estágio.
+
+\FloatBarrier
+\subsection{Discussão}
+
+Os resultados revelam um panorama nuançado. O YOLO26m-cls é o modelo com
+melhor desempenho \textit{one-stage} nas métricas clinicamente mais
+relevantes — sensibilidade macro (+8,0 p.p.\ sobre o ResNet50) e
+F1-macro (+5,47 p.p.).
+O pipeline de dois estágios vai além, atingindo 71,83\% de sensibilidade
+macro e 74,94\% de F1-macro — os melhores valores entre todas as
+abordagens avaliadas — ao custo de maior complexidade de implantação e
+de uma AUC degradada pela falta de calibração entre estágios.
+YOLOv8m-cls e YOLOv11m-cls ficam abaixo do ResNet50 em sensibilidade
+macro \textit{one-stage}, evidenciando que o ganho não é universal à
+família YOLO, mas concentrado na arquitetura YOLO26m.
+
+Na tarefa binária, o YOLO26m-cls também lidera, superando o ResNet18
+em todas as métricas exceto AUC (0,87 vs.\ 0,91). Isso indica que o
+modelo produz probabilidades menos calibradas para ranking, mas toma
+decisões de limiar com maior precisão.
+
+A classe \textit{Variação do Normal} permanece o principal gargalo em
+todos os modelos avaliados, incluindo o baseline (sensibilidade de
+16--43\% no \textit{one-stage}). Suas imagens partilham características
+visuais com as demais classes, tornando-a intrinsecamente difícil de
+separar sem informação adicional. A classe \textit{Câncer Oral}, com
+apenas 4 amostras de teste, apresenta alta variância — o YOLO26m-cls e
+o pipeline acertam 3/4 (75\%) esses números devem ser interpretados com
+cautela dado o tamanho ínfimo da partição.
+
+
+\section{Conclusão}
+\label{sec:conclusao}
+
+Este trabalho avaliou três arquiteturas YOLO modernas no modo de
+classificação — YOLOv8m-cls, YOLOv11m-cls e YOLO26m-cls — sobre o
+dataset público SMART-OM~\cite{smartom}, em duas tarefas: detecção
+binária de anomalias (T\textsubscript{1}) e classificação multiclasse
+de quatro categorias diagnósticas (T\textsubscript{2}).
+O critério de sucesso estabelecido nos objetivos foi atingido: o
+YOLO26m-cls superou o benchmark original em ambas as tarefas,
+alcançando 66,15\% de sensibilidade na classe Anormal contra 65,62\%
+do ResNet18 na tarefa binária, e 69,57\% de sensibilidade macro contra
+61,57\% do ResNet50 na tarefa multiclasse — um ganho de 8,0 p.p.\ na
+métrica primária.
+O F1-macro também melhorou em ambas as tarefas (+4,30 p.p.\ em
+T\textsubscript{1} e +5,47 p.p.\ em T\textsubscript{2}).
+
+Esses resultados demonstram que arquiteturas concebidas para detecção
+em tempo real, quando adaptadas à tarefa de classificação e treinadas
+com ponderação de classes, são competitivas com CNNs clássicas em
+cenários clínicos desbalanceados.
+A ponderação por frequência inversa e o \textit{oversampling} mostraram-se
+particularmente eficazes para a classe Câncer Oral
+(sensibilidade de 75\% com YOLO26m-cls contra 66,67\% do ResNet50),
+apesar das apenas 4 amostras de teste disponíveis.
+Contudo, a família YOLO não apresentou ganhos uniformes: YOLOv8m-cls e
+YOLOv11m-cls ficaram abaixo do ResNet50 em sensibilidade macro na
+tarefa multiclasse, e o YOLO26m-cls perdeu em AUC na tarefa binária
+(0,87 vs.\ 0,91), indicando que a calibração de probabilidades
+permanece um ponto de atenção.
+
+O trabalho apresenta limitações que devem ser consideradas na
+interpretação dos resultados.
+A classe Câncer Oral conta com apenas 20 imagens no total e 4 no
+conjunto de teste, tornando suas métricas altamente sensíveis a
+predições individuais.
+A classe Variação do Normal permanece o principal gargalo — com
+sensibilidade entre 16\% e 43\% em todos os modelos avaliados, inclusive
+no baseline — sugerindo que suas características visuais se sobrepõem
+às demais classes de forma intrínseca.
+
+Como trabalhos futuros, destacam-se: (i) adotar validação cruzada
+estratificada para produzir estimativas de desempenho mais robustas
+e comparáveis ao benchmark; (ii) investigar estratégias de
+\textit{data augmentation} específicas para imagens intraorais, como
+transformações de cor controladas que preservem as propriedades
+diagnósticas da mucosa; e (iii) explorar técnicas de explicabilidade
+— como mapas de ativação Grad-CAM — para identificar as regiões da
+imagem que sustentam as predições e aumentar a confiança clínica
+nos modelos.
+
+\bibliographystyle{sbc}
+\bibliography{referencias}
+
+\end{document}
+
+
+
